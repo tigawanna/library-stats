@@ -4,7 +4,7 @@ import { getGithubViewer } from "./helpers.ts";
 
 
 
-export async function getRepoOwner(c: Context<Env, "/github/owner", Record<string | number | symbol, never>>) {
+export async function getLibStats(c: Context<Env, "/github/lib-stats", Record<string | number | symbol, never>>) {
 
     const headers = c.req.raw.headers
     const gh_token = headers.get('Authorization')
