@@ -4,7 +4,7 @@ import {
 } from "https://deno.land/x/hono@v3.11.7/middleware.ts";
 import { Hono } from "https://deno.land/x/hono@v3.11.7/mod.ts";
 import { getPKGStatsRoute } from "./routes/lib-stats/getLibStats.ts";
-import { getFreshComputeRoute } from "./routes/lib-stats/getAllReposIntoKV.ts";
+import { getFreshComputeRoute } from "./routes/lib-stats/getFreshComputeRoute.ts";
 
 const app = new Hono();
 

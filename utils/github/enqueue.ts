@@ -14,6 +14,7 @@ export async function enqueueRepoPackagesCompute(
     const kv = await Deno.openKv();
     const viewer = await getGithubViewer(viewer_token);
 
+console.log("-======= enqueueing repos for ====== ", viewer.name);
     const enqueueItems = async () => {
       for await (const [index, item] of repos.entries()) {
         const hundrecth = Math.floor(index / 50);

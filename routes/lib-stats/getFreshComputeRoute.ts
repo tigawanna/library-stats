@@ -19,11 +19,13 @@ export async function getFreshComputeRoute(
     return c.text("PAT required", 401);
   }
   const repos = await fetchReposRecursivelyWithGQL({ viewer_token: gh_token });
+
   if (!repos) {
     return c.text("error fetching repos", 401);
   }
   // logSuccess("fetched repos length  ================= ", repos?.length);
-  kv.set(["repos", gh_token], repos);
+  console.log("=== FETCHED REPOS === ", repos?.length);
+  // kv.set(["repos", gh_token], repos);
   await enqueueRepoPackagesCompute({ repos, viewer_token: gh_token });
   return c.text("JOB scheduled , check back later", 200);
 }

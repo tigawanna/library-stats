@@ -54,7 +54,7 @@ export async function getViewerRepos(
       logError("throw error fetching viewer repos  ==> ", data);
       return { data: null, error: data as unknown as BadDataGitHubError };
     }
-    logSuccess("all user repositories ===== ", data);
+    // logSuccess("all user repositories ===== ", data);
     return { data, error: null };
   } catch (err) {
     console.log("catch error fetching viewer repos ==> ", err);
