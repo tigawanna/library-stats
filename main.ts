@@ -16,7 +16,7 @@ app.get("/stats", (c) => {
   return getPKGStatsRoute(c);
 });
 
-app.post("/stats/fresh_compute", (c) => {
+app.get("/stats/fresh_compute", (c) => {
   return getFreshComputeRoute(c);
 });
 
