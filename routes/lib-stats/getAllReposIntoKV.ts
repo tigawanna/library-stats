@@ -2,11 +2,11 @@ import { Context } from "https://deno.land/x/hono@v3.11.7/context.ts";
 import { Env } from "https://deno.land/x/hono@v3.11.7/types.ts";
 import { getViewerRepos } from "../../utils/github/getViewerRepos.ts";
 import { Edge } from "../../utils/github/viewer-repo-types.ts";
-import { logError, logSuccess } from "../../utils/helpers.ts";
+import { logError } from "../../utils/helpers.ts";
 import { enqueueRepoPackagesCompute } from "../../utils/github/enqueue.ts";
 
-export async function getTestRoute(
-  c: Context<Env, "/test", Record<string | number | symbol, never>>
+export async function getFreshComputeRoute(
+  c: Context<Env, "/stats/fresh_compute", Record<string | number | symbol, never>>
 ) {
   const kv = await Deno.openKv();
   const headers = c.req.raw.headers;
@@ -18,10 +18,10 @@ export async function getTestRoute(
   if(!repos){
     return c.text("error fetching repos", 401);
   }
-  logSuccess("fetched repos length  ================= ", repos?.length);
+  // logSuccess("fetched repos length  ================= ", repos?.length);
   kv.set(["repos", gh_token], JSON.stringify(repos));
   await enqueueRepoPackagesCompute({ repos, viewer_token: gh_token });
-  return c.json(repos);
+  return c.text("JOB scheduled , check back later", 200);
 }
 
 

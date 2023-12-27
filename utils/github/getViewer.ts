@@ -1,4 +1,4 @@
-import { logError } from "../../utils/helpers.ts";
+import { logError } from "../helpers.ts";
 
 
 export async function getGithubViewer(viewer_token: string) {

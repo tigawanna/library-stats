@@ -1,6 +1,6 @@
 import { Context } from "https://deno.land/x/hono@v3.11.7/context.ts";
 import { Env } from "https://deno.land/x/hono@v3.11.7/types.ts";
-import { getOneRepoPackageJson } from "../github/getOneRepoLibraries.ts";
+import { getOneRepoPackageJson } from "../../utils/github/getOneRepoLibraries.ts";
 export async function getTestPkgRoute(
     c: Context<Env, "/test/pkg", Record<string | number | symbol, never>>
 ) {

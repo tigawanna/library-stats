@@ -9,7 +9,7 @@ interface EnqueueRepoPackagesCompoutemprops {
     viewer_token: string;
 }
 
-export async function enqueueRepoPackagesCompoute({repos,viewer_token}: EnqueueRepoPackagesCompoutemprops) {
+export async function enqueueRepoPackagesCompute({repos,viewer_token}: EnqueueRepoPackagesCompoutemprops) {
     try {
     const kv = await Deno.openKv();
     

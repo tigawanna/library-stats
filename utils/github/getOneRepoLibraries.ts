@@ -1,6 +1,6 @@
 // deno-lint-ignore-file no-explicit-any ban-ts-comment
 
-import { logError } from "../../utils/helpers.ts";
+import { logError } from "../helpers.ts";
 import { getViewerRepos } from "./getViewerRepos.ts";
 
 export function pkgTypeCondition(
@@ -65,7 +65,7 @@ export const mostFaveDepsList = [
   "graphql",
   "jest",
   "vitest",
-  "nodemon",
+  "nodemon"
 ];
 
 //  modify package.json to addthe pkg_type

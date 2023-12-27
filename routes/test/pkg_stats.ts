@@ -1,6 +1,6 @@
 import { Context } from "https://deno.land/x/hono@v3.11.7/context.ts";
 import { Env } from "https://deno.land/x/hono@v3.11.7/types.ts";
-import { DecodedPackageJson } from "../github/getOneRepoLibraries.ts";
+import { DecodedPackageJson } from "../../utils/github/getOneRepoLibraries.ts";
 export async function getTestPKGStatsRoute(
   c: Context<Env, "/test/kv", Record<string | number | symbol, never>>,
 ) {

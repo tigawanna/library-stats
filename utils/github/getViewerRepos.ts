@@ -1,4 +1,4 @@
-import { logError, logSuccess } from "../../utils/helpers.ts";
+import { logError, logSuccess } from "../helpers.ts";
 
 
 export async function getViewerRepos(viewer_token: string, cursor: string | null = null)
