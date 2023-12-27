@@ -12,7 +12,7 @@ export async function getFreshComputeRoute(
     Record<string | number | symbol, never>
   >,
 ) {
-  const kv = await Deno.openKv();
+try {
   const headers = c.req.raw.headers;
   const gh_token = headers.get("Authorization");
   if (!gh_token) {
@@ -28,6 +28,10 @@ export async function getFreshComputeRoute(
   // kv.set(["repos", gh_token], repos);
   await enqueueRepoPackagesCompute({ repos, viewer_token: gh_token });
   return c.text("JOB scheduled , check back later", 200);
+} catch (error) {
+  return c.text("error fetching repos"+error.message, 401);
+}
+
 }
 
 interface FetchRepoRecursivelyWithGQL {
