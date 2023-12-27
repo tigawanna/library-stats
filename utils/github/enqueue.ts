@@ -19,8 +19,11 @@ console.log("-======= enqueueing repos for ====== ", viewer.name);
       for await (const [index, item] of repos.entries()) {
         const hundrecth = Math.floor(index / 50);
         // const delay = 1000 * 60 * (index + 1);
+
         if ("documentation_url" in item && "message" in item) return;
         const delay = Math.max(1, 1000 * (index + 1) * (hundrecth + 1));
+        console.log("=== QUEUE ITEM ==== ", item);
+        console.log("=== DELAY === ", delay);
         await kv.enqueue({ message: "repo_pkgjson_queue", value: item }, {
           delay,
         });
@@ -28,8 +31,9 @@ console.log("-======= enqueueing repos for ====== ", viewer.name);
     };
     await enqueueItems();
 
-    kv.listenQueue(async (msg) => {
+   await kv.listenQueue(async (msg) => {
       const data = msg as { message: string; value: Edge };
+
       if (!data.value) {
         return;
       }
