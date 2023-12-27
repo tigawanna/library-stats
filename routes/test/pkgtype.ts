@@ -10,6 +10,6 @@ export async function getTestPkgRoute(
     if (!gh_token) {
         return c.text("PAT required", 401);
     }
-    const pkg_type = await getOneRepoPackageJson("chrpkorir/library-stats", gh_token);
+    const pkg_type = await getOneRepoPackageJson("tigawanna/library-stats", gh_token);
     return c.json(pkg_type);
 }
