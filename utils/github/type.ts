@@ -40,6 +40,7 @@ export interface RequiredDecodedPackageJson {
   scripts: KeyStringObject;
   dependencies: KeyStringObject;
   devDependencies: KeyStringObject;
+  // deno-lint-ignore no-explicit-any
   [key: string]: any | undefined;
 }
 

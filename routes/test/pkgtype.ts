@@ -4,7 +4,6 @@ import { getOneRepoPackageJson } from "../../utils/github/getOneRepoLibraries.ts
 export async function getTestPkgRoute(
   c: Context<Env, "/test/pkg", Record<string | number | symbol, never>>,
 ) {
-  const kv = await Deno.openKv();
   const headers = c.req.raw.headers;
   const gh_token = headers.get("Authorization");
   if (!gh_token) {

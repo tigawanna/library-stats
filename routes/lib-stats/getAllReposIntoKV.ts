@@ -23,7 +23,7 @@ export async function getFreshComputeRoute(
     return c.text("error fetching repos", 401);
   }
   // logSuccess("fetched repos length  ================= ", repos?.length);
-  kv.set(["repos", gh_token], JSON.stringify(repos));
+  kv.set(["repos", gh_token], repos);
   await enqueueRepoPackagesCompute({ repos, viewer_token: gh_token });
   return c.text("JOB scheduled , check back later", 200);
 }

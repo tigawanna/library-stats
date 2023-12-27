@@ -1,4 +1,5 @@
 import { getOneRepoPackageJson } from "./getOneRepoLibraries.ts";
+import { getGithubViewer } from "./getViewer.ts";
 import { Edge } from "./getViewerRepos.ts";
 
 interface EnqueueRepoPackagesCompoutemprops {
@@ -11,6 +12,7 @@ export async function enqueueRepoPackagesCompute(
 ) {
   try {
     const kv = await Deno.openKv();
+    const viewer = await getGithubViewer(viewer_token);
 
     const enqueueItems = async () => {
       for await (const [index, item] of repos.entries()) {
@@ -41,7 +43,11 @@ export async function enqueueRepoPackagesCompute(
         );
         if (!pkgjson) return;
         if ("documentation_url" in pkgjson || "message" in pkgjson) return;
-        await kv.set(["repo_pkgjson", data.value.node.nameWithOwner], pkgjson);
+        await kv.set([
+          "repo_pkgjson",
+          viewer.name,
+          data.value.node.nameWithOwner,
+        ], pkgjson);
       }
       return;
     });
