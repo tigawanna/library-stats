@@ -45,9 +45,9 @@ export interface RequiredDecodedPackageJson {
 
 export type DecodedPackageJson =
   | (RequiredDecodedPackageJson & {
-      favdeps?: string[];
-      pkg_type?: TPkgType;
-    })
+    favdeps?: string[];
+    pkg_type?: TPkgType;
+  })
   | BadDataGitHubError;
 
 export type PlainDecodedPackageJson = RequiredDecodedPackageJson & {
@@ -56,7 +56,13 @@ export type PlainDecodedPackageJson = RequiredDecodedPackageJson & {
 };
 export type DecodedPackageJsonList = RequiredDecodedPackageJson;
 
-export type DepsComBo = "React + Vite" | "React" | "Vite" | "Rakkasjs" | "Nextjs" | "Nodejs";
+export type DepsComBo =
+  | "React + Vite"
+  | "React"
+  | "Vite"
+  | "Rakkasjs"
+  | "Nextjs"
+  | "Nodejs";
 
 export interface Packageinfo {
   name: string;
@@ -76,7 +82,13 @@ export interface TPkgObjValue {
 
 export type TPkgObjs = { [key in DepsComBo]: TPkgObjValue };
 
-export type TPkgType = "React+Vite" | "React+Relay" | "Rakkasjs" | "Nextjs" | "Nodejs" | "Others";
+export type TPkgType =
+  | "React+Vite"
+  | "React+Relay"
+  | "Rakkasjs"
+  | "Nextjs"
+  | "Nodejs"
+  | "Others";
 
 export const pkgTypesArr = [
   "React+Vite",

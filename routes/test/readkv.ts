@@ -13,40 +13,40 @@ export async function getTestReadKVRoute(
     // logSuccess("entry  ================= ", entry);
     kv_repo_list.push(entry);
   }
-//   const highlighted_library_stats = kv_repo_list.reduce(
-//     (acc: Record<string, number>, repo) => {
-//       if ("documentation_url" in repo && "message" in repo) return acc;
-//       repo?.favdeps?.forEach((item) => {
-//         acc[item] = (acc[item] || 0) + 1;
-//       });
-//       return acc;
-//     },
-//     {},
-//   );
-// const library_stats = kv_repo_list.reduce(
-//     (acc: Record<string, number>, repo) => {
-//       if ("documentation_url" in repo && "message" in repo) return acc;
-//       Object.entries(repo?.dependencies || {}).forEach(([key, _]) => {
-//         if(key.includes("@types")) return
-//         acc[key] = (acc[key] || 0) + 1;
-//       },{})
-//       Object.entries(repo?.devDependencies || {}).forEach(([key, _]) => {
-//         if (key.includes("@types")) return
-//         acc[key] = (acc[key] || 0) + 1;
-//       },{})
-//     return acc;
-//     },
-//     {},
-//   );
+  //   const highlighted_library_stats = kv_repo_list.reduce(
+  //     (acc: Record<string, number>, repo) => {
+  //       if ("documentation_url" in repo && "message" in repo) return acc;
+  //       repo?.favdeps?.forEach((item) => {
+  //         acc[item] = (acc[item] || 0) + 1;
+  //       });
+  //       return acc;
+  //     },
+  //     {},
+  //   );
+  // const library_stats = kv_repo_list.reduce(
+  //     (acc: Record<string, number>, repo) => {
+  //       if ("documentation_url" in repo && "message" in repo) return acc;
+  //       Object.entries(repo?.dependencies || {}).forEach(([key, _]) => {
+  //         if(key.includes("@types")) return
+  //         acc[key] = (acc[key] || 0) + 1;
+  //       },{})
+  //       Object.entries(repo?.devDependencies || {}).forEach(([key, _]) => {
+  //         if (key.includes("@types")) return
+  //         acc[key] = (acc[key] || 0) + 1;
+  //       },{})
+  //     return acc;
+  //     },
+  //     {},
+  //   );
 
-//   const framework_stats = kv_repo_list.reduce((acc: Record<string, number>, repo) => {
-//   if ("documentation_url" in repo && "message" in repo) return acc;
-//     if (repo?.pkg_type) {
-//         acc[repo?.pkg_type] = (acc[repo?.pkg_type] || 0) + 1;
-//       }
-//       return acc;
-//     },{}
-//   );
+  //   const framework_stats = kv_repo_list.reduce((acc: Record<string, number>, repo) => {
+  //   if ("documentation_url" in repo && "message" in repo) return acc;
+  //     if (repo?.pkg_type) {
+  //         acc[repo?.pkg_type] = (acc[repo?.pkg_type] || 0) + 1;
+  //       }
+  //       return acc;
+  //     },{}
+  //   );
 
   return c.json({ kv_repo_list });
 }

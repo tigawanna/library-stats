@@ -23,32 +23,34 @@ export async function getTestPKGStatsRoute(
     },
     {},
   );
-const library_stats = kv_repo_list.reduce(
+  const library_stats = kv_repo_list.reduce(
     (acc: Record<string, number>, repo) => {
       if ("documentation_url" in repo && "message" in repo) return acc;
       Object.entries(repo?.dependencies || {}).forEach(([key, _]) => {
-        if(key.includes("@types")) return
+        if (key.includes("@types")) return;
         acc[key] = (acc[key] || 0) + 1;
-      },{})
+      }, {});
       Object.entries(repo?.devDependencies || {}).forEach(([key, _]) => {
-        if (key.includes("@types")) return
+        if (key.includes("@types")) return;
         acc[key] = (acc[key] || 0) + 1;
-      },{})
-    return acc;
+      }, {});
+      return acc;
     },
     {},
   );
 
-  const framework_stats = kv_repo_list.reduce((acc: Record<string, number>, repo) => {
-  if ("documentation_url" in repo && "message" in repo) return acc;
-    if (repo?.pkg_type) {
+  const framework_stats = kv_repo_list.reduce(
+    (acc: Record<string, number>, repo) => {
+      if ("documentation_url" in repo && "message" in repo) return acc;
+      if (repo?.pkg_type) {
         acc[repo?.pkg_type] = (acc[repo?.pkg_type] || 0) + 1;
       }
       return acc;
-    },{}
+    },
+    {},
   );
 
-  return c.json({ highlighted_library_stats,library_stats,framework_stats });
+  return c.json({ highlighted_library_stats, library_stats, framework_stats });
 }
 
 // output

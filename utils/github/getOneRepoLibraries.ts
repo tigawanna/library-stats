@@ -65,7 +65,7 @@ export const mostFaveDepsList = [
   "graphql",
   "jest",
   "vitest",
-  "nodemon"
+  "nodemon",
 ];
 
 //  modify package.json to addthe pkg_type
@@ -291,8 +291,8 @@ export type DepsComBo =
   | "Rakkasjs"
   | "Nextjs"
   | "Nodejs"
-  |"Deno"
-  |"Bun"
+  | "Deno"
+  | "Bun";
 
 export interface Packageinfo {
   name: string;
@@ -318,8 +318,8 @@ export type TPkgType =
   | "Rakkasjs"
   | "Nextjs"
   | "Nodejs"
-    | "Deno"
-    | "Bun"
+  | "Deno"
+  | "Bun"
   | "Others";
 
 export const pkgTypesArr = [

@@ -6,7 +6,7 @@ import { logError, logSuccess } from "../../utils/helpers.ts";
 import { enqueueRepoPackagesCompute } from "../../utils/github/enqueue.ts";
 
 export async function getTestRoute(
-  c: Context<Env, "/test", Record<string | number | symbol, never>>
+  c: Context<Env, "/test", Record<string | number | symbol, never>>,
 ) {
   const kv = await Deno.openKv();
   const headers = c.req.raw.headers;
@@ -15,7 +15,7 @@ export async function getTestRoute(
     return c.text("PAT required", 401);
   }
   const repos = await fetchReposRecursivelyWithGQL({ viewer_token: gh_token });
-  if(!repos){
+  if (!repos) {
     return c.text("error fetching repos", 401);
   }
   logSuccess("fetched repos length  ================= ", repos?.length);
@@ -23,9 +23,6 @@ export async function getTestRoute(
   await enqueueRepoPackagesCompute({ repos, viewer_token: gh_token });
   return c.json(repos);
 }
-
-
-
 
 interface FetchRepoRecursivelyWithGQL {
   viewer_token: string;
@@ -46,18 +43,18 @@ async function fetchReposRecursivelyWithGQL({
     if (repos.data) {
       const fetched_repos = repos.data.data.viewer.repositories.edges;
       const totalCount = repos.data.data.viewer.repositories.totalCount;
-      const next_cursor = repos.data.data.viewer.repositories.pageInfo.endCursor;
+      const next_cursor =
+        repos.data.data.viewer.repositories.pageInfo.endCursor;
       const new_repos = all_repos.concat(fetched_repos);
 
       console.log({
         fetched_repos_count: new_repos.length,
         totalCount,
         next_cursor,
-      })
-
+      });
 
       if (new_repos.length < totalCount) {
-       return  fetchReposRecursivelyWithGQL({
+        return fetchReposRecursivelyWithGQL({
           viewer_token,
           cursor: next_cursor,
           all_repos: new_repos,
