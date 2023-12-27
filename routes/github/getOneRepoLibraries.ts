@@ -1,84 +1,7 @@
 // deno-lint-ignore-file no-explicit-any ban-ts-comment
 
 import { logError } from "../../utils/helpers.ts";
-import { IGithubViewer, ViewerRepos, BadDataGitHubError, RequiredDecodedPackageJson, TPkgType, DecodedPackageJson, pkgTypesArr } from "./type.ts";
-
-
-export async function getGithubViewer(viewer_token:string){
-    try {
-        const headersList = {
-            "Accept": "*/*",
-            "User-Agent": "Thunder Client (https://www.thunderclient.com)",
-            "Authorization": `Bearer ${viewer_token}`,
-            "Content-Type": "application/json"
-        }
-
-        const response = await fetch("https://api.github.com/user", {
-            method: "GET",
-            headers: headersList
-        });
-    if(response.ok){
-        const data = await response.json() as unknown as IGithubViewer
-        return data
-    }
-    throw await response.json()
-
-    } catch (error) {
-        logError("error in the getGithubViewer catch block  ==> ", error)
-        throw error
-    }
-}
-
-
-
-
-export async function getViewerRepos(viewer_token: string) {
-    // console.log("viewerr token  === ", viewer_token)
-    const query = `
-    query($first: Int!) {
-    viewer {
-    repositories(first:$first,isFork: false, orderBy: {field: PUSHED_AT, direction: DESC}) {
-      nodes {
-        id
-        name
-        nameWithOwner
-      }
-    }
-  }
-}
-`
-    try {
-        const response = await fetch('https://api.github.com/graphql', {
-            method: 'POST',
-            headers: {
-
-                "Authorization": `bearer ${viewer_token}`,
-                "Content-Type": "application/json",
-                "accept": "application/vnd.github.hawkgirl-preview+json"
-            },
-            body: JSON.stringify({
-                query,
-                variables: {
-                    first: 50
-                },
-                // operationName,
-            }),
-        })
-        const data = await response.json() as unknown as ViewerRepos
-
-
-        if("message" in data){
-            logError("throw error fetching viewer repos  ==> ", data)
-            throw data
-        }
-            logError("all user repositories ===== ", data)
-        return data
-
-    } catch (err) {
-        console.log("catch error fetching viewer repos ==> ", err)
-        return err as BadDataGitHubError
-    }
-}
+import { getViewerRepos } from "./getViewerRepos.ts";
 
 
 
@@ -163,19 +86,28 @@ export async function getOneRepoPackageJson(owner_repo: string, viewer_token: st
         const headersList = {
             "Authorization": `bearer ${viewer_token}`,
         }
+        // is nodejs based
         const response = await fetch(`https://api.github.com/repos/${owner_repo}/contents/package.json`, {
             method: "GET",
             headers: headersList
         });
 
         const data = await response.json()
+        console.log("package.json data ==== ", data)
 
         if (data && data.encoding === "base64" && data.content) {
             const stringBuffer = new TextDecoder().decode(base64ToUint8Array(data.content))
             const pgkjson = JSON.parse(stringBuffer) as DecodedPackageJson
             return await modifyPackageJson(pgkjson)
         }
-
+  
+        // is deno based
+        const deno_response = await fetch(`https://api.github.com/repos/${owner_repo}/contents/deno.lock`, {
+            method: "GET",
+            headers: headersList
+        });
+        const deno_data = await deno_response.json()
+        console.log("deno_data", deno_data)
         return data as DecodedPackageJson
 
     }
@@ -206,10 +138,10 @@ try{
 
     const reposPkgJson: DecodedPackageJson[] = [];
 
-    if (all_repos && "data" in all_repos) {
-        const reposList = all_repos.data.viewer.repositories.nodes
+    if (all_repos.data?.data) {
+        const reposList = all_repos.data?.data.viewer.repositories.edges
         for await (const repo of reposList) {
-            const pkgjson = await getOneRepoPackageJson(repo.nameWithOwner, viewer_token);
+            const pkgjson = await getOneRepoPackageJson(repo.node.nameWithOwner, viewer_token);
             if (pkgjson) {
                 reposPkgJson.push(pkgjson);
             }
@@ -221,4 +153,110 @@ catch(err){
     throw err
 }
 
+}
+
+
+
+
+
+export interface BadDataGitHubError {
+    message: string;
+    documentation_url: string;
+}
+
+export interface IPkgRepo {
+    id: string;
+    name: string;
+    nameWithOwner: string;
+}
+
+export interface RepoRawPKGJSON {
+    name: string;
+    path: string;
+    sha: string;
+    size: number;
+    url: string;
+    html_url: string;
+    git_url: string;
+    download_url: string;
+    type: string;
+    content: string;
+    encoding: string;
+    _links: RepoRawPKGJSONLinks;
+}
+
+export interface RepoRawPKGJSONLinks {
+    self: string;
+    git: string;
+    html: string;
+}
+
+export type KeyStringObject = { [key: string]: string };
+
+export interface RequiredDecodedPackageJson {
+    name: string;
+    private?: boolean;
+    version: string;
+    type?: string;
+    scripts: KeyStringObject;
+    dependencies: KeyStringObject;
+    devDependencies: KeyStringObject;
+    [key: string]: any | undefined;
+}
+
+export type DecodedPackageJson =
+    | (RequiredDecodedPackageJson & {
+        favdeps?: string[];
+        pkg_type?: TPkgType;
+    })
+    | BadDataGitHubError;
+
+export type PlainDecodedPackageJson = RequiredDecodedPackageJson & {
+    favdeps: string[];
+    pkg_type: TPkgType;
+};
+export type DecodedPackageJsonList = RequiredDecodedPackageJson;
+
+export type DepsComBo = "React + Vite" | "React" | "Vite" | "Rakkasjs" | "Nextjs" | "Nodejs";
+
+export interface Packageinfo {
+    name: string;
+    version: string;
+    type?: string;
+    scripts: Record<string, string> | undefined;
+    dependencies: Record<string, string> | undefined;
+    devDependencies: Record<string, string> | undefined;
+}
+
+export interface TPkgObjValue {
+    name: string;
+    dependencies: Set<string>;
+    // devDependencies:string[]
+    count: number;
+}
+
+export type TPkgObjs = { [key in DepsComBo]: TPkgObjValue };
+
+export type TPkgType = "React+Vite" | "React+Relay" | "Rakkasjs" | "Nextjs" | "Nodejs" | "Others";
+
+export const pkgTypesArr = [
+    "React+Vite",
+    "React+Relay",
+    "Rakkasjs",
+    "Nextjs",
+    "Nodejs",
+    "Others",
+] as const;
+
+export type TPkgTypeObj = {
+    [key in (typeof pkgTypesArr)[number]]: {
+        name: string | null;
+        dependencies: string[];
+        count: number;
+    };
+};
+
+export interface PkgsRequest extends Request {
+    pkgs?: IPkgRepo[];
+    pkg_jsons?: DecodedPackageJson[];
 }

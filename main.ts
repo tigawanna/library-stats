@@ -1,8 +1,9 @@
 import { logger, poweredBy } from 'https://deno.land/x/hono@v3.11.7/middleware.ts'
 import { Hono } from 'https://deno.land/x/hono@v3.11.7/mod.ts'
 import { getTestRoute } from "./routes/test/index.ts";
-import { getRepoOwner } from "./routes/github/owner.ts";
-import { getOneRepolibStats } from "./routes/github/one-repo-lib-stats.ts";
+import { getTestReadKVRoute } from "./routes/test/readkv.ts";
+import { getTestPkgRoute } from "./routes/test/pkgtype.ts";
+
 
 const app = new Hono()
 
@@ -13,11 +14,11 @@ app.get('/', (c) => {
 app.get('/test', (c) => {
     return getTestRoute(c)
 })
-app.get('/github/owner', (c) => {
-    return getRepoOwner(c)
+app.get('/test/kv', (c) => {
+    return getTestReadKVRoute(c)
 })
-app.get('/github/lib-stats', (c) => {
-    return getOneRepolibStats(c)
+app.get('/test/pkg', (c) => {
+    return getTestPkgRoute(c)
 })
 
 
