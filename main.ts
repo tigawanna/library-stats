@@ -22,15 +22,15 @@ app.post('/stats/fresh_compute', (c) => {
 })
 
 
-app.get('/test', (c) => {
-    return getTestRoute(c)
-})
-app.get('/test/kv', (c) => {
-    return getTestReadKVRoute(c)
-})
-app.get('/test/pkg', (c) => {
-    return getTestPkgRoute(c)
-})
+// app.get('/test', (c) => {
+//     return getTestRoute(c)
+// })
+// app.get('/test/kv', (c) => {
+//     return getTestReadKVRoute(c)
+// })
+// app.get('/test/pkg', (c) => {
+//     return getTestPkgRoute(c)
+// })
 
 
 Deno.serve(app.fetch)
