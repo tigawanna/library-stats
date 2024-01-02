@@ -39,7 +39,7 @@ app.get('/test', async(c) => {
     
     })
   } catch (error) {
-    return c.text("error using remote KV === "+error.message, 401);
+    return c.text("error  with queues === "+error.message, 401);
   }
 })
 // app.get('/test/kv', (c) => {
