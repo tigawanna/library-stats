@@ -4,7 +4,6 @@ export async function getGithubViewer(viewer_token: string) {
   try {
     const headersList = {
       "Accept": "*/*",
-      "User-Agent": "Thunder Client (https://www.thunderclient.com)",
       "Authorization": `Bearer ${viewer_token}`,
       "Content-Type": "application/json",
     };
