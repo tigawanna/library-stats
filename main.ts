@@ -26,9 +26,10 @@ app.get('/test', async(c) => {
     const env = await load();
     const db = await Deno.openKv();
 
-    db.listenQueue((msg) => {
+    db.listenQueue(async(msg) => {
       const data = msg as { channel: string; text: string };
       console.log("=== QUEUE MESSAGE === ",data);
+      await db.set(["test-queues", data.channel], data.text);
     });
 
     await db.enqueue({ channel: "C123456", text: "Slack message" }, {
