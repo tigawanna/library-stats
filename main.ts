@@ -32,11 +32,10 @@ app.get('/test', async(c) => {
     });
 
     await db.enqueue({ channel: "C123456", text: "Slack message" }, {
-      delay: 60000,
+      delay: 0,
     });
     return c.json({
       env,
-    
     })
   } catch (error) {
     return c.text("error  with queues === "+error.message, 401);
