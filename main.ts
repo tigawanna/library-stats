@@ -24,11 +24,19 @@ app.get("/stats/fresh_compute", (c) => {
 app.get('/test', async(c) => {
   try {
     const env = await load();
-    const kv = await Deno.openKv("https://api.deno.com/databases/80135a8a-6c16-4f9f-ae52-5100637fed23/connect");
-    console.log("KV", kv);
+    const db = await Deno.openKv();
+
+    db.listenQueue(async (msg) => {
+      const data = msg as { channel: string; text: string };
+      console.log("=== QUEUE MESSAGE === ", msg);
+    });
+
+    await db.enqueue({ channel: "C123456", text: "Slack message" }, {
+      delay: 60000,
+    });
     return c.json({
       env,
-      kv
+    
     })
   } catch (error) {
     return c.text("error using remote KV === "+error.message, 401);
