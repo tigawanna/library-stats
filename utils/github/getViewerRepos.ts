@@ -20,6 +20,15 @@ export async function getViewerRepos(
           id
           name
           nameWithOwner
+          languages(first: 10) {
+            edges {
+              node {
+                id
+                name
+                color
+              }
+            }
+          }
         }
       }
       totalCount
@@ -89,6 +98,21 @@ export interface Node {
   id: string;
   name: string;
   nameWithOwner: string;
+  languages: Languages;
+}
+
+export interface Languages {
+  edges: LanguageEdge[]
+}
+
+export interface LanguageEdge {
+  node: LanguageNode
+}
+
+export interface LanguageNode {
+  id: string
+  name: string
+  color: string
 }
 
 export interface PageInfo {

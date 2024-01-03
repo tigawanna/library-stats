@@ -1,11 +1,12 @@
 // deno-lint-ignore-file no-explicit-any ban-ts-comment
 
 import { logError } from "../helpers.ts";
-import { getViewerRepos } from "./getViewerRepos.ts";
+import { LanguageEdge, getViewerRepos } from "./getViewerRepos.ts";
 
-export function pkgTypeCondition(
-  pkg: RequiredDecodedPackageJson,
-): { pkg_type: TPkgType; condition: boolean } {
+export function pkgTypeCondition(pkg: RequiredDecodedPackageJson): {
+  pkg_type: TPkgType;
+  condition: boolean;
+} {
   if (pkg.devDependencies?.rakkasjs) {
     return { pkg_type: "Rakkasjs", condition: true };
   }
@@ -22,10 +23,7 @@ export function pkgTypeCondition(
     return { pkg_type: "React+Vite", condition: true };
   }
 
-  if (
-    (pkg.devDependencies?.nodemon || pkg.dependencies?.nodemon ||
-      pkg.dependancies?.express)
-  ) {
+  if (pkg.devDependencies?.nodemon || pkg.dependencies?.nodemon || pkg.dependancies?.express) {
     return { pkg_type: "Nodejs", condition: true };
   }
   return { pkg_type: "Others", condition: false };
@@ -33,7 +31,7 @@ export function pkgTypeCondition(
 
 export function createPkgObject(pkg: DecodedPackageJson) {
   //@ts-expect-error
-  const pkgtypeObj: { [key in typeof pkgTypesArr[number]]: any } = {};
+  const pkgtypeObj: { [key in (typeof pkgTypesArr)[number]]: any } = {};
   if ("name" in pkg) {
     pkgTypesArr.map((key: any) => {
       //@ts-expect-error
@@ -48,13 +46,30 @@ export function createPkgObject(pkg: DecodedPackageJson) {
 }
 
 export const mostFaveDepsList = [
-  "tailwindcss",
+  "tailwind",
+  "panda",
+  "vite",
+  "trpc",
+  "relay",
   "supabase",
   "typescript",
   "react-router-dom",
   "react-icons",
+  "tanastck",
+  "material",
+  "mantine",
+  "lucide-react",
+  "zustand",
+  "shadcn",
+  "ark",
+  "grapgql",
+  "redux",
+  "date-fns",
+  "react-hook-form",
   "firebase",
   "dayjs",
+  "react",
+  "hono",
   "axios",
   "socket.io",
   "pocketbase",
@@ -75,17 +90,19 @@ export function modifyPackageJson(pgkjson: DecodedPackageJson) {
     console.log("typeCondition", typeCondition);
     pgkjson["pkg_type"] = typeCondition.pkg_type;
 
-    const alldeps = Object.keys(pgkjson.dependencies).map((key) => {
-      return key.split("^")[0];
-    }).concat(
-      Object.keys(pgkjson.devDependencies).map((key) => {
+    const alldeps = Object.keys(pgkjson.dependencies)
+      .map((key) => {
         return key.split("^")[0];
-      }),
-    );
+      })
+      .concat(
+        Object.keys(pgkjson.devDependencies).map((key) => {
+          return key.split("^")[0];
+        })
+      );
 
     const favdeps = mostFaveDepsList.filter((key) => {
       return alldeps.find((dep) => {
-        return dep === key;
+        return dep.includes(key);
       });
     });
 
@@ -96,14 +113,11 @@ export function modifyPackageJson(pgkjson: DecodedPackageJson) {
 }
 
 // get repository package.json
-export async function getOneRepoPackageJson(
-  owner_repo: string,
-  viewer_token: string,
-) {
+export async function getOneRepoPackageJson(owner_repo: string, viewer_token: string) {
   try {
     const headersList = {
-      "Authorization": `bearer ${viewer_token}`,
-      "Accept": "application/vnd.github+json",
+      Authorization: `bearer ${viewer_token}`,
+      Accept: "application/vnd.github+json",
     };
     // is nodejs based
     const response = await fetch(
@@ -111,16 +125,14 @@ export async function getOneRepoPackageJson(
       {
         method: "GET",
         headers: headersList,
-      },
+      }
     );
 
     const data = await response.json();
     console.log("package.json data ==== ", data);
 
     if (data && data.encoding === "base64" && data.content) {
-      const stringBuffer = new TextDecoder().decode(
-        base64ToUint8Array(data.content),
-      );
+      const stringBuffer = new TextDecoder().decode(base64ToUint8Array(data.content));
       const pgkjson = JSON.parse(stringBuffer) as DecodedPackageJson;
       return await modifyPackageJson(pgkjson);
     }
@@ -130,17 +142,15 @@ export async function getOneRepoPackageJson(
       {
         method: "GET",
         headers: headersList,
-      },
+      }
     );
     const deno_lock_data = await deno_lock_response.json();
 
-    if (
-      !("documentation_url" in deno_lock_data && "message" in deno_lock_data)
-    ) {
+    if (!("documentation_url" in deno_lock_data && "message" in deno_lock_data)) {
       return {
         name: owner_repo.split("/")[1],
         favdeps: ["deno"],
-        dependencies: { "deno": "latest" },
+        dependencies: { deno: "latest" },
         pkg_type: "Deno",
       } as any as DecodedPackageJson;
     }
@@ -149,17 +159,15 @@ export async function getOneRepoPackageJson(
       {
         method: "GET",
         headers: headersList,
-      },
+      }
     );
     const deno_json_data = await deno_json_response.json();
 
-    if (
-      !("documentation_url" in deno_json_data && "message" in deno_json_data)
-    ) {
+    if (!("documentation_url" in deno_json_data && "message" in deno_json_data)) {
       return {
         name: owner_repo.split("/")[1],
         favdeps: ["deno"],
-        dependencies: { "deno": "latest" },
+        dependencies: { deno: "latest" },
         pkg_type: "Deno",
       } as any as DecodedPackageJson;
     }
@@ -169,14 +177,14 @@ export async function getOneRepoPackageJson(
       {
         method: "GET",
         headers: headersList,
-      },
+      }
     );
     const bun_lock_data = await bun_lock_response.json();
     if (!("documentation_url" in bun_lock_data && "message" in bun_lock_data)) {
       return {
         name: owner_repo.split("/")[1],
         favdeps: ["bun"],
-        dependencies: { "bun": "latest" },
+        dependencies: { bun: "latest" },
         pkg_type: "Bun",
       } as any as DecodedPackageJson;
     }
@@ -211,11 +219,12 @@ export async function computeAllPkgJsons(viewer_token: string) {
     if (all_repos.data?.data) {
       const reposList = all_repos.data?.data.viewer.repositories.edges;
       for await (const repo of reposList) {
-        const pkgjson = await getOneRepoPackageJson(
-          repo.node.nameWithOwner,
-          viewer_token,
-        );
+        const pkgjson = await getOneRepoPackageJson(repo.node.nameWithOwner, viewer_token);
+        if ("message" in pkgjson && "documentation_url" in pkgjson) {
+          continue
+        }
         if (pkgjson) {
+          pkgjson.languages = repo.node.languages.edges;
           reposPkgJson.push(pkgjson);
         }
       }
@@ -273,9 +282,10 @@ export interface RequiredDecodedPackageJson {
 
 export type DecodedPackageJson =
   | (RequiredDecodedPackageJson & {
-    favdeps?: string[];
-    pkg_type?: TPkgType;
-  })
+      favdeps?: string[];
+      pkg_type?: TPkgType;
+      languages?: LanguageEdge[];
+    })
   | BadDataGitHubError;
 
 export type PlainDecodedPackageJson = RequiredDecodedPackageJson & {

@@ -6,7 +6,7 @@ import { Hono } from "https://deno.land/x/hono@v3.11.7/mod.ts";
 import { getPKGStatsRoute } from "./routes/lib-stats/getLibStats.ts";
 import { getFreshComputeRoute } from "./routes/lib-stats/getFreshComputeRoute.ts";
 import { getOneRepoPackageJson } from "./utils/github/getOneRepoLibraries.ts";
-import { Edge } from "./utils/github/getViewerRepos.ts";
+import { Edge, getViewerRepos } from "./utils/github/getViewerRepos.ts";
 
 const app = new Hono();
 
@@ -44,6 +44,7 @@ app.use("*", logger(), poweredBy());
 app.get("/", (c) => {
   return c.text("Hello Deno!");
 });
+
 app.get("/repo", async(c) => {
   const {repo_name} = c.req.query() as {repo_name: string};
   console.log({repo_name});
@@ -51,6 +52,7 @@ app.get("/repo", async(c) => {
   const repo = await db.get(["repo_pkgjson", "Dennis kinuthia", repo_name]);
   return c.json(repo);
 });
+
 app.get("/stats", (c) => {
   return getPKGStatsRoute(c);
 });
@@ -60,16 +62,18 @@ app.get("/stats/fresh_compute", (c) => {
 });
 
 app.get("/kv", async(c) => {
-  await db.set(["test"], {test: "test"})
-  const data = await db.get<{test: string;moye:boolean}>(["test"])
-  console.log("==== data ==== ",{...data.value,moye: true})
-  const new_value = {...data.value,moye: true}
-  await db.set(["test"],new_value ) 
-  const new_data = await db.get<{ test: string; moye: boolean }>(["test"])
-  console.log({data, new_data})
+const data = await Array.fromAsync(db.list({ prefix: ["repo_pkgjson"] }));
+return c.json({data})
+})
 
-
-  return c.json({data, new_data})
+app.get("/repos", async(c) => { 
+  const headers = c.req.raw.headers;
+  const gh_token = headers.get("Authorization");
+  if (!gh_token) {
+    return c.text("PAT required", 401);
+  } 
+  const repos = await getViewerRepos(gh_token)
+  return c.json({repos})
 })
 
 
