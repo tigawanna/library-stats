@@ -3,12 +3,16 @@
 import { logError } from "../helpers.ts";
 import { LanguageEdge, getViewerRepos } from "./getViewerRepos.ts";
 
+
 export function pkgTypeCondition(pkg: RequiredDecodedPackageJson): {
   pkg_type: TPkgType;
-  condition: boolean;
-} {
-  if (pkg.devDependencies?.rakkasjs) {
+  condition: boolean;} {
+  const pkgs_string = JSON.stringify({ ...pkg.dependencies, ...pkg.devDependencies });
+  if (pkgs_string.includes("rakkas")) {
     return { pkg_type: "Rakkasjs", condition: true };
+  }
+  if (pkgs_string.includes("react-native")) {
+    return { pkg_type: "React-native", condition: true };
   }
 
   if (pkg.dependencies?.next) {
@@ -23,7 +27,14 @@ export function pkgTypeCondition(pkg: RequiredDecodedPackageJson): {
     return { pkg_type: "React+Vite", condition: true };
   }
 
-  if (pkg.devDependencies?.nodemon || pkg.dependencies?.nodemon || pkg.dependancies?.express) {
+  if (
+    pkgs_string.includes("nodemon") ||
+    pkgs_string.includes("tsup") ||
+    pkgs_string.includes("fastify") ||
+    pkgs_string.includes("express") ||
+    pkgs_string.includes("nestjs") ||
+    pkgs_string.includes("mongoose")
+  ) {
     return { pkg_type: "Nodejs", condition: true };
   }
   return { pkg_type: "Others", condition: false };
@@ -50,6 +61,8 @@ export const mostFaveDepsList = [
   "panda",
   "vite",
   "trpc",
+  "expo",
+  "react-native",
   "relay",
   "supabase",
   "typescript",
@@ -129,12 +142,12 @@ export async function getOneRepoPackageJson(owner_repo: string, viewer_token: st
     );
 
     const data = await response.json();
-    console.log("package.json data ==== ", data);
+    // console.log("package.json data ==== ", data);
 
     if (data && data.encoding === "base64" && data.content) {
       const stringBuffer = new TextDecoder().decode(base64ToUint8Array(data.content));
-      const pgkjson = JSON.parse(stringBuffer) as DecodedPackageJson;
-      return await modifyPackageJson(pgkjson);
+      const pkgjson = JSON.parse(stringBuffer) as DecodedPackageJson;
+      return await modifyPackageJson(pkgjson);
     }
 
     const deno_lock_response = await fetch(
@@ -221,7 +234,7 @@ export async function computeAllPkgJsons(viewer_token: string) {
       for await (const repo of reposList) {
         const pkgjson = await getOneRepoPackageJson(repo.node.nameWithOwner, viewer_token);
         if ("message" in pkgjson && "documentation_url" in pkgjson) {
-          continue
+          continue;
         }
         if (pkgjson) {
           pkgjson.languages = repo.node.languages.edges;
@@ -282,6 +295,7 @@ export interface RequiredDecodedPackageJson {
 
 export type DecodedPackageJson =
   | (RequiredDecodedPackageJson & {
+      nameWithOwner: string;
       favdeps?: string[];
       pkg_type?: TPkgType;
       languages?: LanguageEdge[];
@@ -329,12 +343,14 @@ export type TPkgType =
   | "Nextjs"
   | "Nodejs"
   | "Deno"
+  |"React-native"
   | "Bun"
   | "Others";
 
 export const pkgTypesArr = [
   "React+Vite",
   "React+Relay",
+  "React-native",
   "Rakkasjs",
   "Nextjs",
   "Nodejs",
