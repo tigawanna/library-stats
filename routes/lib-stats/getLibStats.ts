@@ -6,7 +6,9 @@ import { DecodedPackageJson } from "../../utils/github/getOneRepoLibraries.ts";
 export async function getPKGStatsRoute(
   c: Context<Env, "/stats", Record<string | number | symbol, never>>,
 ) {
-  const kv = await Deno.openKv();
+  // const kv = await Deno.openKv();
+  const kv = await Deno.openKv("https://api.deno.com/databases/80135a8a-6c16-4f9f-ae52-5100637fed23/connect");
+
   const headers = c.req.raw.headers;
   const gh_token = headers.get("Authorization");
   if (!gh_token) {
@@ -15,28 +17,32 @@ export async function getPKGStatsRoute(
 
 
   // deno-lint-ignore prefer-const
-  let kv_repo_list = [];
-  const repos = await kv.list<DecodedPackageJson>({
-    prefix: ["repo_pkgjson"],
-  });
-  for await (const entry of repos) {
-    kv_repo_list.push(entry.value);
-  }
-  const language_stats = kv_repo_list.reduce(
-    (acc:{[key:string]:{color:string,count:number}}, repo) => {
-      if ("documentation_url" in repo && "message" in repo) return acc;
-      if(!repo || !repo.languages) return acc
-      repo.languages.forEach((item) => {
-        acc[item.node.name] = {color:item.node.color,count:(acc[item.node.name]?.count || 0) + 1}
-      })
-      return acc;
-    },{}
-  )
+  // let kv_repo_list = [];
+  // const repos = await kv.list<DecodedPackageJson>({
+  //   prefix: ["repo_pkgjson"],
+  // });
+  // for await (const entry of repos) {
+  //   kv_repo_list.push(entry.value);
+  // }
+  const key = "repo_pkgjson"
+  const kv_repo_list = await Array.fromAsync(kv.list<DecodedPackageJson>({ prefix: [key] }));
+  console.log({kv_repo_list})
+
+  // const language_stats = kv_repo_list.reduce(
+  //   (acc:{[key:string]:{color:string,count:number}}, repo) => {
+  //     if ("documentation_url" in repo.value && "message" in repo.value) return acc;
+  //     if(!repo.value || !repo.value.languages) return acc
+  //     repo.value.languages.forEach((item) => {
+  //       acc[item.node.name] = {color:item.node.color,count:(acc[item.node.name]?.count || 0) + 1}
+  //     })
+  //     return acc;
+  //   },{}
+  // )
 
   const highlighted_library_stats = kv_repo_list.reduce(
     (acc: Record<string, number>, repo) => {
-      if ("documentation_url" in repo && "message" in repo) return acc;
-      repo?.favdeps?.forEach((item) => {
+      if ("documentation_url" in repo.value && "message" in repo.value) return acc;
+      repo.value?.favdeps?.forEach((item) => {
         acc[item] = (acc[item] || 0) + 1;
       });
       return acc;
@@ -46,12 +52,12 @@ export async function getPKGStatsRoute(
   
   const library_stats = kv_repo_list.reduce(
     (acc: Record<string, number>, repo) => {
-      if ("documentation_url" in repo && "message" in repo) return acc;
-      Object.entries(repo?.dependencies || {}).forEach(([key, _]) => {
+      if ("documentation_url" in repo.value && "message" in repo.value) return acc;
+      Object.entries(repo.value?.dependencies || {}).forEach(([key, _]) => {
         if (key.includes("@types")) return;
         acc[key] = (acc[key] || 0) + 1;
       }, {});
-      Object.entries(repo?.devDependencies || {}).forEach(([key, _]) => {
+      Object.entries(repo.value?.devDependencies || {}).forEach(([key, _]) => {
         if (key.includes("@types")) return;
         acc[key] = (acc[key] || 0) + 1;
       }, {});
@@ -62,16 +68,16 @@ export async function getPKGStatsRoute(
 
   const framework_stats = kv_repo_list.reduce(
     (acc: Record<string, number>, repo) => {
-      if ("documentation_url" in repo && "message" in repo) return acc;
-      if (repo?.pkg_type) {
-        acc[repo?.pkg_type] = (acc[repo?.pkg_type] || 0) + 1;
+      if ("documentation_url" in repo.value && "message" in repo.value) return acc;
+      if (repo.value?.pkg_type) {
+        acc[repo.value?.pkg_type] = (acc[repo.value?.pkg_type] || 0) + 1;
       }
       return acc;
     },
     {},
   );
 
-  return c.json({ highlighted_library_stats, library_stats, framework_stats , language_stats });
+  return c.json({ highlighted_library_stats, library_stats, framework_stats });
 }
 
 // output
