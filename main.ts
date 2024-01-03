@@ -4,6 +4,7 @@ import { getPKGStatsRoute } from "./routes/lib-stats/getLibStats.ts";
 import { getFreshComputeRoute } from "./routes/lib-stats/getFreshComputeRoute.ts";
 import { getOneRepoPackageJson } from "./utils/github/getOneRepoLibraries.ts";
 import { Edge, getViewerRepos } from "./utils/github/getViewerRepos.ts";
+import { getGithubViewer } from "./utils/github/getViewer.ts";
 
 const app = new Hono();
 
@@ -29,7 +30,7 @@ db.listenQueue(async (msg) => {
     if ("documentation_url" in pkgjson || "message" in pkgjson) return;
     // const db = await Deno.openKv("https://api.deno.com/databases/80135a8a-6c16-4f9f-ae52-5100637fed23/connect");
     // const external_kv = await Deno.openKv("https://api.deno.com/databases/80135a8a-6c16-4f9f-ae52-5100637fed23/connect");
-    console.log("==== writing data to kv ==== ", {
+      console.log("==== writing data to kv ==== ", {
       data,
       name: data.value.node.nameWithOwner,
       pkgjson,
@@ -42,6 +43,22 @@ db.listenQueue(async (msg) => {
 });
 
 app.use("*", logger(), poweredBy());
+
+app.use('*', async (c, next) => {
+  const headers = c.req.raw.headers;
+  const gh_token = headers.get("Authorization");
+  if (!gh_token) {
+    return c.text("PAT required", 401);
+  }
+ 
+  const viewer = await getGithubViewer(gh_token);
+  if(viewer.login !=="tigawanna"){
+    return c.text("Who are you?", 401);
+  }
+  await next()
+  // c.header("viewer", viewer);
+})
+
 app.get("/", (c) => {
   return c.text("Hello Deno!");
 });
