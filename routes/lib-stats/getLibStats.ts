@@ -1,7 +1,7 @@
 import { Context } from "https://deno.land/x/hono@v3.11.7/context.ts";
 import { Env } from "https://deno.land/x/hono@v3.11.7/types.ts";
 import { DecodedPackageJson } from "../../utils/github/getOneRepoLibraries.ts";
-import { getGithubViewer } from "../../utils/github/getViewer.ts";
+
 
 export async function getPKGStatsRoute(
   c: Context<Env, "/stats", Record<string | number | symbol, never>>,
@@ -13,11 +13,11 @@ export async function getPKGStatsRoute(
     return c.text("PAT required", 401);
   }
 
-  const viewer = await getGithubViewer(gh_token);
+
   // deno-lint-ignore prefer-const
   let kv_repo_list = [];
   const repos = await kv.list<DecodedPackageJson>({
-    prefix: ["repo_pkgjson", viewer.name],
+    prefix: ["repo_pkgjson"],
   });
   for await (const entry of repos) {
     kv_repo_list.push(entry.value);
