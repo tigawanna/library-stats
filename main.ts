@@ -27,7 +27,7 @@ db.listenQueue(async (msg) => {
     const pkgjson = await getOneRepoPackageJson(data.value.node.nameWithOwner, data.viewer_token);
     if (!pkgjson) return;
     if ("documentation_url" in pkgjson || "message" in pkgjson) return;
-    const external_kv = await Deno.openKv("https://api.deno.com/databases/80135a8a-6c16-4f9f-ae52-5100637fed23/connect");
+    // const kv = await Deno.openKv("https://api.deno.com/databases/80135a8a-6c16-4f9f-ae52-5100637fed23/connect");
     // const external_kv = await Deno.openKv("https://api.deno.com/databases/80135a8a-6c16-4f9f-ae52-5100637fed23/connect");
     console.log("==== writing data to kv ==== ", {
       data,
@@ -35,7 +35,7 @@ db.listenQueue(async (msg) => {
       pkgjson,
     });
     // const db = await Deno.openKv();
-    await external_kv.set(["repo_pkgjson", data.value.node.nameWithOwner], pkgjson);
+    await db.set(["repo_pkgjson", data.value.node.nameWithOwner], pkgjson);
   }
 
   return;
