@@ -22,6 +22,16 @@ export async function getPKGStatsRoute(
   for await (const entry of repos) {
     kv_repo_list.push(entry.value);
   }
+  const language_stats = kv_repo_list.reduce(
+    (acc:{[key:string]:{color:string,count:number}}, repo) => {
+      if ("documentation_url" in repo && "message" in repo) return acc;
+      if(!repo || !repo.languages) return acc
+      repo.languages.forEach((item) => {
+        acc[item.node.name] = {color:item.node.color,count:(acc[item.node.name]?.count || 0) + 1}
+      })
+      return acc;
+    },{}
+  )
 
   const highlighted_library_stats = kv_repo_list.reduce(
     (acc: Record<string, number>, repo) => {
@@ -33,6 +43,7 @@ export async function getPKGStatsRoute(
     },
     {},
   );
+  
   const library_stats = kv_repo_list.reduce(
     (acc: Record<string, number>, repo) => {
       if ("documentation_url" in repo && "message" in repo) return acc;
@@ -60,7 +71,7 @@ export async function getPKGStatsRoute(
     {},
   );
 
-  return c.json({ highlighted_library_stats, library_stats, framework_stats });
+  return c.json({ highlighted_library_stats, library_stats, framework_stats , language_stats });
 }
 
 // output
