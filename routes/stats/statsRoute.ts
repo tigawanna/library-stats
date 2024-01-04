@@ -3,11 +3,11 @@ import { getPKGStatsRoute } from "./helpers/getLibStatswithQueues.ts";
 import { getFreshComputeRoute } from "./helpers/computeLibStats.ts";
 
 const statsRoute = new Hono();
-statsRoute.get("/stats", (c) => {
+statsRoute.get("/", (c) => {
   return getPKGStatsRoute(c);
 });
 
-statsRoute.get("/stats/enqueue_compute", (c) => {
+statsRoute.get("/enqueue_compute", (c) => {
   return getFreshComputeRoute(c);
 });
 
