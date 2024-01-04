@@ -5,10 +5,10 @@ import { DecodedPackageJson } from "../../../utils/github/getOneRepoLibraries.ts
 export async function getPKGStatsRoute(
   c: Context<Env, "/stats", Record<string | number | symbol, never>>,
 ) {
-  // const kv = await Deno.openKv();
-  const kv = await Deno.openKv(
-    "https://api.deno.com/databases/80135a8a-6c16-4f9f-ae52-5100637fed23/connect",
-  );
+  const kv = await Deno.openKv();
+  // const kv = await Deno.openKv(
+  //   "https://api.deno.com/databases/80135a8a-6c16-4f9f-ae52-5100637fed23/connect",
+  // );
 
   const headers = c.req.raw.headers;
   const gh_token = headers.get("Authorization");

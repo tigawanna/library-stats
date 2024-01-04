@@ -29,8 +29,8 @@ export async function getFreshComputeRoute(
     if (!repos) {
       return c.text("error fetching repos", 401);
     }
-    const kv = await Deno.openKv("https://api.deno.com/databases/80135a8a-6c16-4f9f-ae52-5100637fed23/connect");
-  // const kv = await Deno.openKv();
+    // const kv = await Deno.openKv("https://api.deno.com/databases/80135a8a-6c16-4f9f-ae52-5100637fed23/connect");
+  const kv = await Deno.openKv();
     // console.log("=== FETCHED REPOS === ", repos?.length);
     const language_stats = repos.reduce(
       (acc: { [key: string]: { color: string; count: number } }, repo) => {

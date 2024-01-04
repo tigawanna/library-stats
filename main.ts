@@ -35,7 +35,7 @@ db.listenQueue(async (msg) => {
     );
     if (!pkgjson) return;
     if ("documentation_url" in pkgjson || "message" in pkgjson) return;
-    const db = await Deno.openKv("https://api.deno.com/databases/80135a8a-6c16-4f9f-ae52-5100637fed23/connect");
+    // const db = await Deno.openKv("https://api.deno.com/databases/80135a8a-6c16-4f9f-ae52-5100637fed23/connect");
     // const external_kv = await Deno.openKv("https://api.deno.com/databases/80135a8a-6c16-4f9f-ae52-5100637fed23/connect");
     console.log("==== writing data to kv ==== ", {
       data,
