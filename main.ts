@@ -15,6 +15,7 @@ const app = new Hono();
 const db = await Deno.openKv();
 
 db.listenQueue(async (msg) => {
+  console.log(" ====  Q msg ===== ",msg)
   const data = msg as { message: string; value: Edge; viewer_token: string };
 
   if (!data.value) {
