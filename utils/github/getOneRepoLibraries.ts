@@ -1,13 +1,16 @@
 // deno-lint-ignore-file no-explicit-any ban-ts-comment
 
 import { logError } from "../helpers.ts";
-import { LanguageEdge, getViewerRepos } from "./getViewerRepos.ts";
-
+import { getViewerRepos, LanguageEdge } from "./getViewerRepos.ts";
 
 export function pkgTypeCondition(pkg: RequiredDecodedPackageJson): {
   pkg_type: TPkgType;
-  condition: boolean;} {
-  const pkgs_string = JSON.stringify({ ...pkg.dependencies, ...pkg.devDependencies });
+  condition: boolean;
+} {
+  const pkgs_string = JSON.stringify({
+    ...pkg.dependencies,
+    ...pkg.devDependencies,
+  });
   if (pkgs_string.includes("rakkas")) {
     return { pkg_type: "Rakkasjs", condition: true };
   }
@@ -110,7 +113,7 @@ export function modifyPackageJson(pgkjson: DecodedPackageJson) {
       .concat(
         Object.keys(pgkjson.devDependencies).map((key) => {
           return key.split("^")[0];
-        })
+        }),
       );
 
     const favdeps = mostFaveDepsList.filter((key) => {
@@ -126,7 +129,10 @@ export function modifyPackageJson(pgkjson: DecodedPackageJson) {
 }
 
 // get repository package.json
-export async function getOneRepoPackageJson(owner_repo: string, viewer_token: string) {
+export async function getOneRepoPackageJson(
+  owner_repo: string,
+  viewer_token: string,
+) {
   try {
     const headersList = {
       Authorization: `bearer ${viewer_token}`,
@@ -138,14 +144,16 @@ export async function getOneRepoPackageJson(owner_repo: string, viewer_token: st
       {
         method: "GET",
         headers: headersList,
-      }
+      },
     );
 
     const data = await response.json();
     // console.log("package.json data ==== ", data);
 
     if (data && data.encoding === "base64" && data.content) {
-      const stringBuffer = new TextDecoder().decode(base64ToUint8Array(data.content));
+      const stringBuffer = new TextDecoder().decode(
+        base64ToUint8Array(data.content),
+      );
       const pkgjson = JSON.parse(stringBuffer) as DecodedPackageJson;
       return await modifyPackageJson(pkgjson);
     }
@@ -155,11 +163,13 @@ export async function getOneRepoPackageJson(owner_repo: string, viewer_token: st
       {
         method: "GET",
         headers: headersList,
-      }
+      },
     );
     const deno_lock_data = await deno_lock_response.json();
 
-    if (!("documentation_url" in deno_lock_data && "message" in deno_lock_data)) {
+    if (
+      !("documentation_url" in deno_lock_data && "message" in deno_lock_data)
+    ) {
       return {
         name: owner_repo.split("/")[1],
         favdeps: ["deno"],
@@ -172,11 +182,13 @@ export async function getOneRepoPackageJson(owner_repo: string, viewer_token: st
       {
         method: "GET",
         headers: headersList,
-      }
+      },
     );
     const deno_json_data = await deno_json_response.json();
 
-    if (!("documentation_url" in deno_json_data && "message" in deno_json_data)) {
+    if (
+      !("documentation_url" in deno_json_data && "message" in deno_json_data)
+    ) {
       return {
         name: owner_repo.split("/")[1],
         favdeps: ["deno"],
@@ -190,7 +202,7 @@ export async function getOneRepoPackageJson(owner_repo: string, viewer_token: st
       {
         method: "GET",
         headers: headersList,
-      }
+      },
     );
     const bun_lock_data = await bun_lock_response.json();
     if (!("documentation_url" in bun_lock_data && "message" in bun_lock_data)) {
@@ -232,7 +244,10 @@ export async function computeAllPkgJsons(viewer_token: string) {
     if (all_repos.data?.data) {
       const reposList = all_repos.data?.data.viewer.repositories.edges;
       for await (const repo of reposList) {
-        const pkgjson = await getOneRepoPackageJson(repo.node.nameWithOwner, viewer_token);
+        const pkgjson = await getOneRepoPackageJson(
+          repo.node.nameWithOwner,
+          viewer_token,
+        );
         if ("message" in pkgjson && "documentation_url" in pkgjson) {
           continue;
         }
@@ -295,11 +310,11 @@ export interface RequiredDecodedPackageJson {
 
 export type DecodedPackageJson =
   | (RequiredDecodedPackageJson & {
-      nameWithOwner: string;
-      favdeps?: string[];
-      pkg_type?: TPkgType;
-      languages?: LanguageEdge[];
-    })
+    nameWithOwner: string;
+    favdeps?: string[];
+    pkg_type?: TPkgType;
+    languages?: LanguageEdge[];
+  })
   | BadDataGitHubError;
 
 export type PlainDecodedPackageJson = RequiredDecodedPackageJson & {
@@ -343,7 +358,7 @@ export type TPkgType =
   | "Nextjs"
   | "Nodejs"
   | "Deno"
-  |"React-native"
+  | "React-native"
   | "Bun"
   | "Others";
 

@@ -102,17 +102,17 @@ export interface Node {
 }
 
 export interface Languages {
-  edges: LanguageEdge[]
+  edges: LanguageEdge[];
 }
 
 export interface LanguageEdge {
-  node: LanguageNode
+  node: LanguageNode;
 }
 
 export interface LanguageNode {
-  id: string
-  name: string
-  color: string
+  id: string;
+  name: string;
+  color: string;
 }
 
 export interface PageInfo {
